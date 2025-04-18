@@ -1,0 +1,31 @@
+using System.Collections;
+using UnityEngine;
+
+public class Item_RBody : MonoBehaviour
+{
+    [SerializeField] Rigidbody body;
+    private bool action;
+
+    void Start()
+    {
+        action = false;
+    }
+
+    // Update is called once per frame
+    void FixedUpdate()
+    {
+        if (!action)
+        {
+            action = false;
+
+            StartCoroutine(TimedDestroy());
+        }
+    }
+
+    private IEnumerator TimedDestroy()
+    {
+        yield return new WaitForSeconds(2);
+
+        Destroy(this.gameObject);
+    }
+}
