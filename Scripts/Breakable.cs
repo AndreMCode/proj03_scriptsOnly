@@ -10,6 +10,7 @@ public class Breakable : MonoBehaviour
     [SerializeField] GameObject soundSourceFinal;
     [SerializeField] AudioClip breakableHitSFX;
     [SerializeField] AudioClip breakableFinalSFX;
+    [SerializeField] AudioClip breakableContentsSFX;
 
     private GameObject gem;
 
@@ -48,16 +49,28 @@ public class Breakable : MonoBehaviour
     private void PlayFinalSFX()
     {
         // Instantiate sound object
-        GameObject soundObject = Instantiate(soundSourceFinal, transform.position, Quaternion.identity);
+        GameObject soundObject1 = Instantiate(soundSourceFinal, transform.position, Quaternion.identity);
         // Pull sound object script
-        AudioSource source = soundObject.GetComponent<AudioSource>();
+        AudioSource source1 = soundObject1.GetComponent<AudioSource>();
 
         // Set clip and attributes, play sound
-        source.clip = breakableFinalSFX;
-        source.pitch = Random.Range(breakableFinalSFXPitch - 0.1f, breakableFinalSFXPitch + 0.1f);
-        source.Play();
+        source1.clip = breakableContentsSFX;
+        source1.Play();
 
         // Destroy the sound object
-        Destroy(soundObject, breakableFinalSFX.length);
+        Destroy(soundObject1, breakableContentsSFX.length);
+
+        // Instantiate sound object
+        GameObject soundObject2 = Instantiate(soundSourceFinal, transform.position, Quaternion.identity);
+        // Pull sound object script
+        AudioSource source2 = soundObject2.GetComponent<AudioSource>();
+
+        // Set clip and attributes, play sound
+        source2.clip = breakableFinalSFX;
+        source2.pitch = Random.Range(breakableFinalSFXPitch - 0.1f, breakableFinalSFXPitch + 0.1f);
+        source2.Play();
+
+        // Destroy the sound object
+        Destroy(soundObject2, breakableFinalSFX.length);
     }
 }
