@@ -48,19 +48,6 @@ public class PlayerShooter : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.JoystickButton2))
             {
                 FireProjectile();
-
-                // soundSource.pitch = projectileLaunchSFXPitch;
-                // soundSource.PlayOneShot(projectileLaunchSFX, projectileLaunchSFXVolume);
-
-                // projectile = Instantiate(playerProjectile);
-
-                // Vector3 spawnPosition = transform.position
-                //                   + projectileDirection * projectileForwardOffset
-                //                   + Vector3.up * projectileHeightOffset;
-
-                // projectile.transform.SetPositionAndRotation(spawnPosition, Quaternion.LookRotation(projectileDirection));
-                // PlayerProjectile projectileLook = projectile.GetComponent<PlayerProjectile>();
-                // projectileLook.SetDirection(projectileDirection);
             }
         }
     }

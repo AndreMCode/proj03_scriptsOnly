@@ -70,7 +70,7 @@ public class EnemyMovement : MonoBehaviour
         }
     }
 
-    public void SetEnemyDirection(int xDirection, int yDirection, int zDirection) // furture use, manipulate movement
+    public void SetEnemyDirection(int xDirection, int yDirection, int zDirection) // future use, manipulate movement
     {
         moveSpeedX *= xDirection;
         moveSpeedY *= yDirection;

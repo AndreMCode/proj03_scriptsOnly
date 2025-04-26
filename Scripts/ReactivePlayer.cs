@@ -1,6 +1,6 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UIElements.Experimental;
+using UnityEngine.SceneManagement;
 
 public class ReactivePlayer : MonoBehaviour
 {
@@ -8,6 +8,11 @@ public class ReactivePlayer : MonoBehaviour
     [SerializeField] AudioClip playerHitSFX;
     public float playerHitSFXVolume;
     public float playerHitSFXPitch;
+    [SerializeField] AudioClip playerDeathClip;
+    public float PlayerDeathClipVolume;
+
+    [SerializeField] PhysicsMaterial bounciness;
+
     [SerializeField] SkinnedMeshRenderer playerRenderer;
     public float baseHealth;
     public float health;
@@ -15,7 +20,7 @@ public class ReactivePlayer : MonoBehaviour
     public float flickerInterval;
     public bool invincible;
     public bool isAlive;
-    
+
     void Start()
     {
         health = baseHealth;
@@ -29,8 +34,45 @@ public class ReactivePlayer : MonoBehaviour
     {
         if (isAlive && health <= 0)
         {
-            Debug.Log("Player Died!");
             isAlive = false;
+
+            // Disable controls
+            PlayerMovement movement = GetComponent<PlayerMovement>();
+            PlayerShooter shooter = GetComponent<PlayerShooter>();
+            movement.enabled = false;
+            shooter.enabled = false;
+
+            // Add a Rigidbody
+            if (!TryGetComponent(out Rigidbody body))
+            {
+                body = gameObject.AddComponent<Rigidbody>();
+            }
+
+            // Add a capsule collider
+            var collider = gameObject.AddComponent<BoxCollider>();
+            collider.size = Vector3.one * 0.75f;
+            collider.material = bounciness;
+
+            // Disable CharacterController
+            var cc = GetComponent<CharacterController>();
+            if (cc != null) cc.enabled = false;
+
+            body.useGravity = true;
+            body.constraints = RigidbodyConstraints.None;
+            body.centerOfMass = Vector3.forward * 0.25f;
+
+            // Apply knockback from projectile position
+            body.AddExplosionForce(200.0f,
+            transform.position + Vector3.forward * 0.6f + Vector3.right * Random.Range(-0.4f, 0.4f), 2.0f);
+
+            Messenger.Broadcast(GameEvent.GAME_OVER_TXT);
+
+            BGMManager bgm = FindFirstObjectByType<BGMManager>();
+            bgm.OnPlayerLose();
+            soundSource.pitch = 1.0f;
+            soundSource.PlayOneShot(playerDeathClip, PlayerDeathClipVolume);
+
+            StartCoroutine(HealthDepleted());
         }
     }
 
@@ -44,7 +86,7 @@ public class ReactivePlayer : MonoBehaviour
             health -= damage;
             Messenger<float>.Broadcast("PLAYER_HEALTH_UPDATE", health);
 
-            Debug.Log("Player Received " + damage + " damage");
+            // Debug.Log("Player Received " + damage + " damage");
             StartCoroutine(PlayerFlicker());
         }
     }
@@ -55,6 +97,22 @@ public class ReactivePlayer : MonoBehaviour
         health = Mathf.Clamp(health, 0, baseHealth);
 
         Messenger<float>.Broadcast("PLAYER_HEALTH_UPDATE", health);
+    }
+
+    private void ResetGame()
+    {
+        // Unlock the cursor
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        
+        Scene currentScene = SceneManager.GetActiveScene();
+
+        // Load the base scene additively
+        SceneManager.LoadSceneAsync("Scene00", LoadSceneMode.Additive).completed += (op) =>
+        {
+            // Unload the previous scene once the new one is loaded
+            SceneManager.UnloadSceneAsync(currentScene);
+        };
     }
 
     private IEnumerator PlayerFlicker()
@@ -72,5 +130,16 @@ public class ReactivePlayer : MonoBehaviour
         }
 
         invincible = false;
+    }
+
+    private IEnumerator HealthDepleted()
+    { // Wait and reset
+        yield return new WaitForSeconds(4.0f);
+
+        playerRenderer.enabled = false; // move down if implemented cars on the road
+
+        yield return new WaitForSeconds(1.0f);
+
+        ResetGame();
     }
 }

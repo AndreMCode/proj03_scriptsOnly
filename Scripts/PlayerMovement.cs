@@ -59,6 +59,11 @@ public class PlayerMovement : MonoBehaviour
             body.Move(moveSpeed * Time.deltaTime * moveDirection);
         }
 
+        if (Input.GetKeyDown(KeyCode.Tab))
+        { // Game Popup key
+            Messenger.Broadcast(GameEvent.TOGGLE_GAME_POPUP);
+        }
+
         if (grounded && (Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.JoystickButton0)))
         { // Jump
             velocity.y = Mathf.Sqrt(2 * jumpStrength * gravity);
@@ -139,11 +144,8 @@ public class PlayerMovement : MonoBehaviour
             animator.transform.localRotation = Quaternion.Euler(0, -90, 0); // Facing left
 
         // Animator parameters
-        // animator.SetBool("Grounded", grounded);
         animator.SetFloat("speed", Mathf.Abs(movement)); // Use abs so it works in both directions
         animator.SetBool("jumping", !grounded && velocity.y > 0);
-        // animator.SetBool("Falling", !grounded && velocity.y <= 0);
-        // animator.SetBool("Dashing", dashing);
 
     }
 

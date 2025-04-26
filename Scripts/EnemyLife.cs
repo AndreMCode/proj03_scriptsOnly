@@ -98,7 +98,6 @@ public class EnemyLife : MonoBehaviour
         // Wait time and destroy self
         yield return new WaitForSeconds(1.5f);
 
-        Debug.Log("EnemyDestroyed");
         Destroy(this.gameObject);
     }
 }

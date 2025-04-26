@@ -73,7 +73,7 @@ public class PlayerProjectile : MonoBehaviour
                 Vector3 hitPosition = transform.position + offsetDir;
                 enemy.ReactToHit(damage, hitPosition);
 
-                Debug.Log("Hit position (with offset): " + hitPosition);
+                // Debug.Log("Hit position (with offset): " + hitPosition);
             }
 
             Destroy(this.gameObject);

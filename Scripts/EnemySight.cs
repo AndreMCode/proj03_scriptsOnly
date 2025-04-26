@@ -57,7 +57,7 @@ public class EnemySight : MonoBehaviour
                 { // Check for ledge
                     if (hit.distance > ledgeDetectDistance)
                     { // Turn around
-                        Debug.Log("Ledge detected");
+                        // Debug.Log("Ledge detected");
                         ReverseEnemyMovement();
                     }
                 }
@@ -92,7 +92,7 @@ public class EnemySight : MonoBehaviour
                     {
                         if (hitObject.CompareTag("Player") && hit.distance < playerDetectDistance)
                         {
-                            Debug.Log("Player detected");
+                            // Debug.Log("Player detected");
                             enemyShooter.FireProjectileForward(raycastDirection);
                         }
                     }
@@ -110,7 +110,7 @@ public class EnemySight : MonoBehaviour
 
                     if (hitObject.CompareTag("Enemy") && hit.distance < enemyDetectDistance)
                     { // Turn around
-                        Debug.Log("Enemy detected");
+                        // Debug.Log("Enemy detected");
                         ReverseEnemyMovement();
                     }
                 }

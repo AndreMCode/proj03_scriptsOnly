@@ -11,7 +11,6 @@ public class Item_RBody : MonoBehaviour
         action = false;
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         if (!action)

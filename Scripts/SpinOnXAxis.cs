@@ -3,10 +3,6 @@ using UnityEngine;
 public class SpinOnXAxis : MonoBehaviour
 {
     public float speed;
-    void Start()
-    {
-        
-    }
 
     void Update()
     {

@@ -7,8 +7,6 @@ public class BGMManager : MonoBehaviour
     [SerializeField] AudioSource bgm00Loop;
     [SerializeField] AudioSource bgm01Loop;
     [SerializeField] AudioSource bgm02Loop;
-    [SerializeField] AudioSource bgm03Loop;
-    [SerializeField] AudioSource bgm04Loop;
     private AudioSource currentTrack;
     public int currentLevel;
 
@@ -17,7 +15,7 @@ public class BGMManager : MonoBehaviour
     void Start()
     {
         // Assign BGM tracks to array
-        AudioSource[] bgmTracks = {bgm000Loop, bgm00Loop, bgm01Loop, bgm02Loop, bgm03Loop, bgm04Loop};
+        AudioSource[] bgmTracks = {bgm000Loop, bgm00Loop, bgm01Loop, bgm02Loop};
         // Custom BGM track start point
         float startTime = currentLevel < 1 ? 0 : 20.600f;
 
@@ -42,7 +40,15 @@ public class BGMManager : MonoBehaviour
     { // Short fade on fail
         if (!isFading)
         {
-            StartCoroutine(FadeOutTracks(0.25f));
+            StartCoroutine(FadeOutTracks(0.5f));
+        }
+    }
+
+    public void OnPlayerReset()
+    { // Short fade on reset
+        if (!isFading)
+        {
+            StartCoroutine(FadeOutTracks(1.0f));
         }
     }
 
