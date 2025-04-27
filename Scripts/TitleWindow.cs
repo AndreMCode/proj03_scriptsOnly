@@ -39,6 +39,12 @@ public class TitleWindow : MonoBehaviour
         Application.Quit();
     }
 
+    public void OnResetScoreButtonPress()
+    {
+        PlayerPrefs.SetInt("highScore", 0);
+        highScoreTXT.text = PlayerPrefs.GetInt("highScore", 0).ToString();
+    }
+
     private void LoadNextLevel()
     {
         // Load the next scene additively

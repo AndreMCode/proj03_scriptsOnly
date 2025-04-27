@@ -149,6 +149,12 @@ public class PlayerMovement : MonoBehaviour
 
     }
 
+    public void FreezeAnimatorBody()
+    {
+        animator.SetBool("jumping", false);
+        animator.SetFloat("speed", 0);
+    }
+
     void LateUpdate()
     { // Lock player to z-axis
         Vector3 position = transform.position;

@@ -36,8 +36,12 @@ public class ReactivePlayer : MonoBehaviour
         {
             isAlive = false;
 
+            // Update if new highest score
+            Messenger.Broadcast(GameEvent.CARRY_OVER_SCORE);
+
             // Disable controls
             PlayerMovement movement = GetComponent<PlayerMovement>();
+            movement.FreezeAnimatorBody();
             PlayerShooter shooter = GetComponent<PlayerShooter>();
             movement.enabled = false;
             shooter.enabled = false;

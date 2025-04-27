@@ -9,6 +9,7 @@ public class EnemyShooter : MonoBehaviour
     [SerializeField] AudioSource soundSource;
     [SerializeField] AudioClip projectileLaunchSFX;
     public float projectileLaunchSFXPitch;
+    public float projectileLaunchSFXVolume;
 
     private GameObject projectile;
     public float projectileDamage;
@@ -69,7 +70,7 @@ public class EnemyShooter : MonoBehaviour
         }
         else
         {
-            soundSource.PlayOneShot(projectileLaunchSFX);
+            soundSource.PlayOneShot(projectileLaunchSFX, projectileLaunchSFXVolume);
 
             projectile = Instantiate(enemyProjectile);
             EnemyProjectile projectileAttributes = projectile.GetComponent<EnemyProjectile>();
@@ -99,7 +100,7 @@ public class EnemyShooter : MonoBehaviour
     {
         for (int i = 0; i < burstCount; i++)
         {
-            soundSource.PlayOneShot(projectileLaunchSFX);
+            soundSource.PlayOneShot(projectileLaunchSFX, projectileLaunchSFXVolume);
 
             projectile = Instantiate(enemyProjectile);
             EnemyProjectile projectileAttributes = projectile.GetComponent<EnemyProjectile>();

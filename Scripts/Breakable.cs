@@ -15,7 +15,10 @@ public class Breakable : MonoBehaviour
     private GameObject gem;
 
     public float breakableHitSFXPitch;
+    public float breakableHitSFXVolume;
     public float breakableFinalSFXPitch;
+    public float breakableFinalSFXVolume;
+    public float breakableContentsSFXVolume;
 
     public float health;
     public int value;
@@ -24,7 +27,7 @@ public class Breakable : MonoBehaviour
     {
         // Set sound attributes, play sound
         soundSource.pitch = Random.Range(breakableHitSFXPitch - 0.1f, breakableHitSFXPitch + 0.1f);
-        soundSource.PlayOneShot(breakableHitSFX, 0.5f);
+        soundSource.PlayOneShot(breakableHitSFX, breakableHitSFXVolume);
 
         // Decrement health
         health -= damage;
@@ -55,6 +58,7 @@ public class Breakable : MonoBehaviour
 
         // Set clip and attributes, play sound
         source1.clip = breakableContentsSFX;
+        source1.volume = breakableContentsSFXVolume;
         source1.Play();
 
         // Destroy the sound object
@@ -67,6 +71,7 @@ public class Breakable : MonoBehaviour
 
         // Set clip and attributes, play sound
         source2.clip = breakableFinalSFX;
+        source2.volume = breakableFinalSFXVolume;
         source2.pitch = Random.Range(breakableFinalSFXPitch - 0.1f, breakableFinalSFXPitch + 0.1f);
         source2.Play();
 

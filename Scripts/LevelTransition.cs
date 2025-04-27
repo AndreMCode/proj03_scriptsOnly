@@ -21,9 +21,13 @@ public class LevelTransition : MonoBehaviour
         Messenger.Broadcast(GameEvent.CARRY_OVER_SCORE);
 
         PlayerMovement movement = other.gameObject.GetComponent<PlayerMovement>();
+        movement.FreezeAnimatorBody();
         movement.enabled = false;
 
-        StartCoroutine(GetReadyText());
+        if (sceneToLoad != "Scene00")
+        {
+            StartCoroutine(GetReadyText());
+        }
         StartCoroutine(NextLevelTimer());
 
         BGMManager bgm = FindFirstObjectByType<BGMManager>();

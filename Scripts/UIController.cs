@@ -3,12 +3,19 @@ using UnityEngine;
 
 public class UIController : MonoBehaviour
 {
+    [SerializeField] AudioSource soundSource;
+    [SerializeField] AudioClip playerLowHealthSFX;
+    public float playerLowHealthSFXVolume;
+    public float playerLowHealthSFXPitch;
     [SerializeField] GamePopup gamePopup;
-    [SerializeField] TMP_Text healthCounter;
     [SerializeField] TMP_Text scoreCounter;
     [SerializeField] TMP_Text levelCompleteTXT;
     [SerializeField] TMP_Text getReadyTXT;
     [SerializeField] TMP_Text gameOverTXT;
+    public UnityEngine.UI.Image[] hearts;
+    private readonly int healthPerHeart = 10;
+    private readonly int maxHealth = 50;
+    private int currentHealth;
     private int score;
 
     void Start()
@@ -18,7 +25,10 @@ public class UIController : MonoBehaviour
         getReadyTXT.enabled = false;
         gameOverTXT.enabled = false;
 
-        healthCounter.text = "50";
+        currentHealth = maxHealth;
+        UpdateHearts();
+
+        // healthCounter.text = "50";
         scoreCounter.text = PlayerPrefs.GetInt("runningScore", 0).ToString();
         score = PlayerPrefs.GetInt("runningScore", 0);
     }
@@ -45,9 +55,40 @@ public class UIController : MonoBehaviour
         Messenger.RemoveListener(GameEvent.GAME_OVER_TXT, GameOverTXT);
     }
 
+    private void UpdateHearts()
+    {
+        int filledHearts = currentHealth / healthPerHeart;
+
+        for (int i = 0; i < hearts.Length; i++)
+        {
+            if (i < filledHearts)
+            {
+                hearts[i].color = new Color(1f, 0f, 0f, 1f);
+            }
+            else
+            {
+                hearts[i].color = new Color(1f, 1f, 1f, 1f);
+            }
+        }
+    }
+
     void PlayerHealthUpdate(float value)
     {
-        healthCounter.text = value.ToString();
+        // healthCounter.text = value.ToString();
+        currentHealth = Mathf.Clamp((int)value, 0, maxHealth);
+        UpdateHearts();
+
+        if (currentHealth == 20)
+        {
+            soundSource.pitch = playerLowHealthSFXPitch;
+            soundSource.PlayOneShot(playerLowHealthSFX, playerLowHealthSFXVolume);
+        }
+
+        if (currentHealth == 10)
+        {
+            soundSource.pitch = playerLowHealthSFXPitch + 0.1f;
+            soundSource.PlayOneShot(playerLowHealthSFX, playerLowHealthSFXVolume + 0.1f);
+        }
     }
 
     void PlayerScoreUpdate(int value)
@@ -61,7 +102,9 @@ public class UIController : MonoBehaviour
         if (gamePopup.isActiveAndEnabled)
         {
             gamePopup.Close();
-        } else {
+        }
+        else
+        {
             gamePopup.Open();
         }
     }
