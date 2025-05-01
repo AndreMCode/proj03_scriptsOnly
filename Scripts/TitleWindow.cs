@@ -56,7 +56,7 @@ public class TitleWindow : MonoBehaviour
     }
 
     private IEnumerator GetReadyText()
-    { // Prepare for proceeding level sequence
+    { // Next level visual cue
         for (int i = 0; i < 6; i++)
         {
             getReadyTXT.enabled = true;

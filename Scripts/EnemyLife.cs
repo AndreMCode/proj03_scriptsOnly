@@ -8,17 +8,24 @@ public class EnemyLife : MonoBehaviour
     [SerializeField] Rigidbody body;
     [SerializeField] GameObject itemDropPrefab;
 
+    // Flicker
+    private SkinnedMeshRenderer enemyRendererSkinned;
+    private MeshRenderer enemyRendererMesh;
+    public float flickerInterval;
+    public float flickerCooldown;
+
+    // Audio
     [SerializeField] AudioSource soundSource;
     [SerializeField] GameObject soundSourceFinal;
     [SerializeField] AudioClip enemyHitSFX;
     [SerializeField] AudioClip enemyFinalSFX;
-    private Vector3 hitFrom;
-    private GameObject itemDrop;
-
     public float enemyHitSFXPitch;
     public float enemyHitSFXVolume;
     public float enemyFinalSFXPitch;
     public float enemyFinalSFXVolume;
+
+    private Vector3 hitFrom;
+    private GameObject itemDrop;
     public float baseHealth;
     public float health;
     public bool isAlive;
@@ -35,10 +42,13 @@ public class EnemyLife : MonoBehaviour
         { // Defeat sequence
             PlayFinalSFX();
 
+            // Set attributes
             isAlive = false;
             enemySight.SetEnemySight(isAlive);
             enemyMovement.SetEnemyAlive(isAlive);
+            enemyMovement.FreezeAnimatorBody();
 
+            // Health recovery drop chance
             int chance = Random.Range(0, 10);
             if (chance < 3)
             {
@@ -50,8 +60,9 @@ public class EnemyLife : MonoBehaviour
             body.constraints = RigidbodyConstraints.None;
 
             // Apply knockback from projectile position
-            body.AddExplosionForce(400.0f, hitFrom, 2.0f);
+            body.AddExplosionForce(250.0f, hitFrom, 2.0f);
 
+            // Update player score
             Messenger<int>.Broadcast(GameEvent.PLAYER_SCORE_UPDATE, ((int)baseHealth));
 
             StartCoroutine(DestroyTimer());
@@ -72,7 +83,7 @@ public class EnemyLife : MonoBehaviour
     }
 
     public float GetEnemyHealth()
-    {
+    { // Get health value
         return health;
     }
 
@@ -89,14 +100,52 @@ public class EnemyLife : MonoBehaviour
         source.volume = enemyFinalSFXVolume;
         source.Play();
 
-        // Destroy the sound object
+        // Destroy the sound object after audio length
         Destroy(soundObject, enemyFinalSFX.length);
+    }
+
+    private IEnumerator EnemyFlicker()
+    { // Flicker renderer before destroying itself
+        enemyRendererSkinned = GetComponentInChildren<SkinnedMeshRenderer>();
+        enemyRendererMesh = GetComponentInChildren<MeshRenderer>();
+
+        // Either skinned or basic renderer
+        if (enemyRendererSkinned != null)
+        {
+            float elapsed = 0f;
+
+            while (elapsed < flickerCooldown)
+            {
+                enemyRendererSkinned.enabled = false;
+                yield return new WaitForSeconds(flickerInterval);
+                enemyRendererSkinned.enabled = true;
+                yield return new WaitForSeconds(flickerInterval);
+                elapsed += flickerInterval * 2;
+            }
+        }
+        else if (enemyRendererMesh != null)
+        {
+            float elapsed = 0f;
+
+            while (elapsed < flickerCooldown)
+            {
+                enemyRendererMesh.enabled = false;
+                yield return new WaitForSeconds(flickerInterval);
+                enemyRendererMesh.enabled = true;
+                yield return new WaitForSeconds(flickerInterval);
+                elapsed += flickerInterval * 2;
+            }
+        }
     }
 
     private IEnumerator DestroyTimer()
     {
         // Wait time and destroy self
         yield return new WaitForSeconds(1.5f);
+
+        StartCoroutine(EnemyFlicker());
+
+        yield return new WaitForSeconds(flickerCooldown);
 
         Destroy(this.gameObject);
     }

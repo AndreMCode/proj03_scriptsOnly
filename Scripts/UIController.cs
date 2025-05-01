@@ -3,10 +3,12 @@ using UnityEngine;
 
 public class UIController : MonoBehaviour
 {
+    // Audio
     [SerializeField] AudioSource soundSource;
     [SerializeField] AudioClip playerLowHealthSFX;
     public float playerLowHealthSFXVolume;
     public float playerLowHealthSFXPitch;
+
     [SerializeField] GamePopup gamePopup;
     [SerializeField] TMP_Text scoreCounter;
     [SerializeField] TMP_Text levelCompleteTXT;
@@ -28,7 +30,6 @@ public class UIController : MonoBehaviour
         currentHealth = maxHealth;
         UpdateHearts();
 
-        // healthCounter.text = "50";
         scoreCounter.text = PlayerPrefs.GetInt("runningScore", 0).ToString();
         score = PlayerPrefs.GetInt("runningScore", 0);
     }
@@ -74,7 +75,6 @@ public class UIController : MonoBehaviour
 
     void PlayerHealthUpdate(float value)
     {
-        // healthCounter.text = value.ToString();
         currentHealth = Mathf.Clamp((int)value, 0, maxHealth);
         UpdateHearts();
 

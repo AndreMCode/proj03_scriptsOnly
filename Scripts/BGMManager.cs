@@ -3,23 +3,29 @@ using UnityEngine;
 
 public class BGMManager : MonoBehaviour
 {
+    // Objects with BGM loops attached
     [SerializeField] AudioSource bgm000Loop;
     [SerializeField] AudioSource bgm00Loop;
     [SerializeField] AudioSource bgm01Loop;
     [SerializeField] AudioSource bgm02Loop;
-    private AudioSource currentTrack;
-    public int currentLevel;
 
+    // BGM reference
+    private AudioSource currentTrack;
+
+    // Used to set desired BGM track
+    public int currentLevel;
+    
     private bool isFading = false;
 
     void Start()
     {
         // Assign BGM tracks to array
         AudioSource[] bgmTracks = {bgm000Loop, bgm00Loop, bgm01Loop, bgm02Loop};
+
         // Custom BGM track start point
         float startTime = currentLevel < 1 ? 0 : 20.600f;
 
-        // Choose which of five BGM tracks to play dependent on level
+        // Choose which BGM track to play dependent on level
         int index = currentLevel;
         bgmTracks[index].time = startTime;
 

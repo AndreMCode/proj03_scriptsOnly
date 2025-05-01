@@ -10,6 +10,7 @@ public class EnemySight : MonoBehaviour
     private int currentLookY;
     private int currentLookZ;
 
+    // Raycast
     public float forwardDetectOffset;
     private Vector3 forwardRayOrigin;
     private Vector3 forwardRayDirection;
@@ -17,6 +18,7 @@ public class EnemySight : MonoBehaviour
     private Vector3 raycastDirection;
     private bool isAutoFire;
 
+    // Detection
     public bool checkForPlayer;
     public float playerDetectDistance;
     public float playerDetectHeightOffset;
@@ -28,9 +30,6 @@ public class EnemySight : MonoBehaviour
     public bool checkWalls;
     public float wallDetectDistance;
     public float wallDetectHeightOffset;
-
-
-
 
     void Start()
     {
@@ -91,7 +90,7 @@ public class EnemySight : MonoBehaviour
                     if (!isFiring && !isAutoFire)
                     {
                         if (hitObject.CompareTag("Player") && hit.distance < playerDetectDistance)
-                        {
+                        { // Fire at player
                             // Debug.Log("Player detected");
                             enemyShooter.FireProjectileForward(raycastDirection);
                         }

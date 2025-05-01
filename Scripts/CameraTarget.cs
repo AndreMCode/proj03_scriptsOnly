@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class CameraTarget : MonoBehaviour
 {
-    public Transform player; // The player object
-    public Vector3 boundarySize = new Vector3(12f, 8f, 1f); // Size of the boundary relative to the player
+    public Transform player; // The player entity
+    public Vector3 boundarySize = new(7f, 5f, 1f); // Size of the boundary relative to the player
 
     void Update()
     {

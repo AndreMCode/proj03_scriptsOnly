@@ -7,18 +7,13 @@ public class Item_HealthUp : MonoBehaviour
     public float rotationSpeed;
     public float recoveryValue;
 
-    void Start()
-    {
-        
-    }
-
     void Update()
-    {
+    { // Animate object
         transform.Rotate(0, rotationSpeed * Time.deltaTime, 0);
     }
 
     void OnTriggerEnter(Collider other)
-    {
+    { // Collision logic
         if (other.gameObject.CompareTag("Player"))
         {
             ReactivePlayer player = other.gameObject.GetComponent<ReactivePlayer>();
@@ -45,7 +40,7 @@ public class Item_HealthUp : MonoBehaviour
         source.clip = recoverySFX;
         source.Play();
 
-        // Destroy the sound object
+        // Destroy the sound object after audio length
         Destroy(soundObject, recoverySFX.length);
     }
 }

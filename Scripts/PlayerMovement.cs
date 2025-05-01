@@ -3,30 +3,36 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] CharacterController body;
-    [SerializeField] GameObject dashDust;
+    [SerializeField] ParticleSystem dashSparks;
+    [SerializeField] ParticleSystem dashDust;
     [SerializeField] Animator animator;
-    private GameObject dashDustObject;
+    public float dashDustParticleHeightOffset;
+
+    // Audio
+    [SerializeField] AudioSource dashSFXAudioSource;
+    [SerializeField] AudioClip dashSFXClip;
+    public float dashSFXVolume;
+    public float dashSFXPitch;
+
     private Vector3 velocity;
     public float gravity;
 
     public bool moveable; // for attatching as child obj for wall slide action (transform.translate)
     public bool grounded;
-    public bool canCancelJump;
-    public bool dashing;
-    public bool dashJumping;
-
     public float moveSpeed;
     public float jumpStrength;
     public float jumpCancelForce;
+    public bool canCancelJump;
 
+    public bool dashing;
+    public bool dashJumping;
     public float dashSpeed;
     public float dashTime;
     public float lastDashTime;
     public float dashDuration;
     public float dashCooldown;
-
     private float dashDirection;
-    public float dashDustParticleHeightOffset;
+    
 
     void Start()
     {
@@ -35,19 +41,30 @@ public class PlayerMovement : MonoBehaviour
         dashing = false;
         dashJumping = false;
         canCancelJump = false;
+        dashSparks.Stop();
+        dashDust.Stop();
     }
 
     void Update()
     {
         // Determine grounded condition
         grounded = body.isGrounded;
-        if (grounded)
+        if (grounded && dashJumping)
         {
             dashJumping = false;
+            dashDust.Stop();
         }
 
         // Collect movement
         float movement = Input.GetAxisRaw("Horizontal");
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+            movement = 1;
+        }
+        if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            movement = -1;
+        }
         Vector3 moveDirection = new Vector3(movement, 0, 0).normalized;
 
         if (dashJumping)
@@ -82,14 +99,17 @@ public class PlayerMovement : MonoBehaviour
 
         if (grounded && !dashing && !dashJumping)
         { // Dash initialize
-            if ((Input.GetKeyDown(KeyCode.C) || Input.GetKeyDown(KeyCode.JoystickButton5))
+            if ((Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.JoystickButton5))
                 && Time.time > lastDashTime + dashCooldown && movement != 0)
             {
                 dashing = true;
                 dashTime = Time.time + dashDuration;
                 dashDirection = movement > 0 ? 1 : -1;
 
-                DashDustParticle();
+                dashSFXAudioSource.pitch = dashSFXPitch;
+                dashSFXAudioSource.PlayOneShot(dashSFXClip, dashSFXVolume);
+                dashSparks.Play();
+                dashDust.Play();
 
                 lastDashTime = Time.time;
             }
@@ -104,16 +124,19 @@ public class PlayerMovement : MonoBehaviour
             body.Move(new Vector3(dashDirection * dashSpeed * Time.deltaTime, 0, 0));
 
             // Cancel if release C or timeout
-            if (Time.time >= dashTime || Input.GetKeyUp(KeyCode.C)
+            if (Time.time >= dashTime || Input.GetKeyUp(KeyCode.A)
                 || Input.GetKeyUp(KeyCode.JoystickButton5))
             {
                 dashing = false;
+                dashSparks.Stop();
+                dashDust.Stop();
             }
 
             if (grounded && (Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.JoystickButton0)))
             {
                 dashing = false;
                 dashJumping = true;
+                dashSparks.Stop();
                 velocity.y = Mathf.Sqrt(2 * jumpStrength * gravity);
                 canCancelJump = true;
             }
@@ -153,6 +176,7 @@ public class PlayerMovement : MonoBehaviour
     {
         animator.SetBool("jumping", false);
         animator.SetFloat("speed", 0);
+        dashSparks.Stop();
     }
 
     void LateUpdate()
@@ -160,11 +184,5 @@ public class PlayerMovement : MonoBehaviour
         Vector3 position = transform.position;
         position.z = 0;
         transform.position = position;
-    }
-
-    void DashDustParticle()
-    {
-        dashDustObject = Instantiate(dashDust, transform);
-        dashDustObject.transform.SetLocalPositionAndRotation(new(dashDirection * 0.5f, dashDustParticleHeightOffset, 0), Quaternion.Euler(0, dashDirection > 0 ? -90 : 90, 0));
     }
 }

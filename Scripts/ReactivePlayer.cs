@@ -4,15 +4,15 @@ using UnityEngine.SceneManagement;
 
 public class ReactivePlayer : MonoBehaviour
 {
+    // Audio
     [SerializeField] AudioSource soundSource;
     [SerializeField] AudioClip playerHitSFX;
+    [SerializeField] AudioClip playerDeathClip;
     public float playerHitSFXVolume;
     public float playerHitSFXPitch;
-    [SerializeField] AudioClip playerDeathClip;
     public float PlayerDeathClipVolume;
 
     [SerializeField] PhysicsMaterial bounciness;
-
     [SerializeField] SkinnedMeshRenderer playerRenderer;
     public float baseHealth;
     public float health;
@@ -33,7 +33,7 @@ public class ReactivePlayer : MonoBehaviour
     void Update()
     {
         if (isAlive && health <= 0)
-        {
+        { // Player defeated logic
             isAlive = false;
 
             // Update if new highest score
@@ -61,6 +61,7 @@ public class ReactivePlayer : MonoBehaviour
             var cc = GetComponent<CharacterController>();
             if (cc != null) cc.enabled = false;
 
+            // Set rigidbody constraints
             body.useGravity = true;
             body.constraints = RigidbodyConstraints.None;
             body.centerOfMass = Vector3.forward * 0.25f;

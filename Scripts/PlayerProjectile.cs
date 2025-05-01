@@ -2,6 +2,12 @@ using UnityEngine;
 
 public class PlayerProjectile : MonoBehaviour
 {
+    // Audio
+    [SerializeField] GameObject soundSourceFinal;
+    [SerializeField] AudioClip wallHitSFX;
+    public float wallHitSFXVolume;
+    public float wallHitSFXPitch;
+
     private Vector3 startPosition;
     public Vector3 direction;
     public float baseSpeed;
@@ -29,9 +35,23 @@ public class PlayerProjectile : MonoBehaviour
     }
 
     void OnCollisionEnter(Collision collision)
-    {
+    { // Collision logic
         if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Floor"))
         {
+            // Instantiate sound object
+            GameObject soundObject = Instantiate(soundSourceFinal, transform.position, Quaternion.identity);
+            // Pull sound object script
+            AudioSource source = soundObject.GetComponent<AudioSource>();
+
+            // Set clip and attributes, play sound
+            source.clip = wallHitSFX;
+            source.pitch = Random.Range(wallHitSFXPitch - 0.1f, wallHitSFXPitch + 0.1f);
+            source.volume = wallHitSFXVolume;
+            source.Play();
+
+            // Destroy the sound object after audio length
+            Destroy(soundObject, wallHitSFX.length);
+
             Destroy(this.gameObject);
         }
 

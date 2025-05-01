@@ -20,12 +20,14 @@ public class EnemyMovement : MonoBehaviour
     void Start()
     {
         if (isAnimated)
-        {
+        { // Collect component if animated type
             animator = GetComponentInChildren<Animator>();
         }
 
+        // Notify relevant scripts of direction
         SetEnemyLook(startDirectionX, startDirectionY, startDirectionZ);
 
+        // Apply magnitude
         moveSpeedX *= startDirectionX;
         moveSpeedY *= startDirectionY;
         moveSpeedZ *= startDirectionZ;
@@ -37,7 +39,7 @@ public class EnemyMovement : MonoBehaviour
     void FixedUpdate()
     {
         if (isAlive && !gamePaused)
-        {
+        { // Movement logic
             if (movementY)
             {
                 body.linearVelocity = new Vector3(moveSpeedX, moveSpeedY, moveSpeedZ);
@@ -47,7 +49,7 @@ public class EnemyMovement : MonoBehaviour
                 body.linearVelocity = new Vector3(moveSpeedX, body.linearVelocity.y, moveSpeedZ);
             }
 
-            if (isAnimated)
+            if (isAnimated) // Animate if using animator
             { animator.SetFloat("speed", Mathf.Abs(moveSpeedX)); }
         }
     }
@@ -58,7 +60,7 @@ public class EnemyMovement : MonoBehaviour
         enemyShooter.SetForwardDirection(xDirection, yDirection, zDirection);
 
         if (isAnimated)
-        { // Calculate desired look direction
+        { // Calculate desired look direction for animated bodies
             Vector3 lookDirection = new(xDirection, yDirection, zDirection);
 
             // Only rotate if there's a valid direction
@@ -70,8 +72,8 @@ public class EnemyMovement : MonoBehaviour
         }
     }
 
-    public void SetEnemyDirection(int xDirection, int yDirection, int zDirection) // future use, manipulate movement
-    {
+    public void SetEnemyDirection(int xDirection, int yDirection, int zDirection)
+    { // future use, manipulate movement
         moveSpeedX *= xDirection;
         moveSpeedY *= yDirection;
         moveSpeedZ *= zDirection;
@@ -91,5 +93,14 @@ public class EnemyMovement : MonoBehaviour
     public void SetEnemyAlive(bool status)
     {
         isAlive = status;
+    }
+
+    public void FreezeAnimatorBody()
+    {
+        if (isAnimated)
+        {
+            animator.SetBool("jumping", false);
+            animator.SetFloat("speed", 0);
+        }
     }
 }

@@ -11,7 +11,7 @@ public class LevelTransition : MonoBehaviour
     private bool hasTriggered = false;
 
     private void OnTriggerEnter(Collider other)
-    {
+    { // Transition logic
         if (hasTriggered) return;
         if (!other.CompareTag(playerTag)) return;
 
@@ -20,6 +20,7 @@ public class LevelTransition : MonoBehaviour
         Messenger.Broadcast(GameEvent.LEVEL_COMPLETE_TXT);
         Messenger.Broadcast(GameEvent.CARRY_OVER_SCORE);
 
+        // Set player attributes
         PlayerMovement movement = other.gameObject.GetComponent<PlayerMovement>();
         movement.FreezeAnimatorBody();
         movement.enabled = false;
@@ -45,7 +46,7 @@ public class LevelTransition : MonoBehaviour
     }
 
     private IEnumerator GetReadyText()
-    { // Prepare for proceeding level sequence
+    { // Next level visual cue
         yield return new WaitForSeconds(3.0f);
 
         for (int i = 0; i < 3; i++)

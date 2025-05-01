@@ -6,11 +6,13 @@ public class EnemyShooter : MonoBehaviour
     [SerializeField] EnemySight enemySight;
     [SerializeField] GameObject enemyProjectile;
 
+    // Audio
     [SerializeField] AudioSource soundSource;
     [SerializeField] AudioClip projectileLaunchSFX;
     public float projectileLaunchSFXPitch;
     public float projectileLaunchSFXVolume;
 
+    // Projectile
     private GameObject projectile;
     public float projectileDamage;
     public float projectileSpeed;
@@ -20,9 +22,11 @@ public class EnemyShooter : MonoBehaviour
     public float fireCooldown;
     private bool firing;
 
+    // Auto fire
     private Vector3 autoFireDirection;
     public bool autoFire;
 
+    // Burst fire
     public bool burstFire;
     public int burstCount;
     public float burstInterval;
@@ -72,6 +76,7 @@ public class EnemyShooter : MonoBehaviour
         {
             soundSource.PlayOneShot(projectileLaunchSFX, projectileLaunchSFXVolume);
 
+            // Instantiate and rotate projectile
             projectile = Instantiate(enemyProjectile);
             EnemyProjectile projectileAttributes = projectile.GetComponent<EnemyProjectile>();
             projectileAttributes.SetProjectileDamage(projectileDamage);
@@ -81,7 +86,6 @@ public class EnemyShooter : MonoBehaviour
                               + direction.normalized * projectileForwardOffset
                               + Vector3.up * projectileHeightOffset;
 
-            // Rotate projectile to enemy forward
             projectile.transform.SetPositionAndRotation(spawnPosition, Quaternion.LookRotation(direction));
         }
     }
@@ -102,6 +106,7 @@ public class EnemyShooter : MonoBehaviour
         {
             soundSource.PlayOneShot(projectileLaunchSFX, projectileLaunchSFXVolume);
 
+            // Instantiate and rotate projectile
             projectile = Instantiate(enemyProjectile);
             EnemyProjectile projectileAttributes = projectile.GetComponent<EnemyProjectile>();
             projectileAttributes.SetProjectileDamage(projectileDamage);
@@ -111,7 +116,6 @@ public class EnemyShooter : MonoBehaviour
                               + direction.normalized * projectileForwardOffset
                               + Vector3.up * projectileHeightOffset;
 
-            // Rotate projectile to enemy forward
             projectile.transform.SetPositionAndRotation(spawnPosition, Quaternion.LookRotation(direction));
 
             yield return new WaitForSeconds(burstInterval);

@@ -19,13 +19,13 @@ public class EnemyProjectile : MonoBehaviour
 
         distance = Vector3.Distance(startPosition, transform.position);
         if (distance > travelLimit)
-        {
+        { // Destroy on distance from origin limit
             Destroy(this.gameObject);
         }
     }
 
     void OnTriggerEnter(Collider collision)
-    { // Using trigger rather than collision
+    { // Collision logic
         if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Floor"))
         {
             Destroy(this.gameObject);

@@ -15,7 +15,7 @@ public class Item_RBody : MonoBehaviour
     {
         if (!action)
         {
-            action = false;
+            action = true;
 
             StartCoroutine(TimedDestroy());
         }
