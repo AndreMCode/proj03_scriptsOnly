@@ -2,7 +2,9 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    // Bodies, components, effects
     [SerializeField] CharacterController body;
+    [SerializeField] PlayerSight sight;
     [SerializeField] ParticleSystem dashSparks;
     [SerializeField] ParticleSystem dashDust;
     [SerializeField] Animator animator;
@@ -14,16 +16,21 @@ public class PlayerMovement : MonoBehaviour
     public float dashSFXVolume;
     public float dashSFXPitch;
 
+    // Environment
     private Vector3 velocity;
     public float gravity;
 
-    public bool moveable; // for attatching as child obj for wall slide action (transform.translate)
+    // Movement, jump
+    public bool moveable; // deprecated **
     public bool grounded;
     public float moveSpeed;
+    private float movement;
+    private float lastMovement;
     public float jumpStrength;
     public float jumpCancelForce;
     public bool canCancelJump;
 
+    // Dash
     public bool dashing;
     public bool dashJumping;
     public float dashSpeed;
@@ -32,7 +39,14 @@ public class PlayerMovement : MonoBehaviour
     public float dashDuration;
     public float dashCooldown;
     private float dashDirection;
-    
+
+    // Wall cling, wall-jump
+    public bool isWallAttached;
+    public bool isWallJumping;
+    public float wallSlideSpeed;
+    public float wallJumpTime;
+    public float wallJumpCooldown;
+    private Vector3 wallJumpDirection;
 
     void Start()
     {
@@ -41,6 +55,8 @@ public class PlayerMovement : MonoBehaviour
         dashing = false;
         dashJumping = false;
         canCancelJump = false;
+        isWallAttached = false;
+        isWallJumping = false;
         dashSparks.Stop();
         dashDust.Stop();
     }
@@ -55,8 +71,20 @@ public class PlayerMovement : MonoBehaviour
             dashDust.Stop();
         }
 
+        if (grounded && isWallJumping)
+        {
+            isWallJumping = false;
+        }
+
+        // Determine wall action
+        if (isWallAttached && (grounded || movement == 0 || movement == -lastMovement))
+        {
+            isWallAttached = false;
+            ReturnIsTouchingWall(isWallAttached);
+        }
+
         // Collect movement
-        float movement = Input.GetAxisRaw("Horizontal");
+        movement = Input.GetAxisRaw("Horizontal");
         if (Input.GetKey(KeyCode.RightArrow))
         {
             movement = 1;
@@ -67,15 +95,17 @@ public class PlayerMovement : MonoBehaviour
         }
         Vector3 moveDirection = new Vector3(movement, 0, 0).normalized;
 
-        if (dashJumping)
-        { // Apply dash airborne speed during dash jump time
-            body.Move(dashSpeed * Time.deltaTime * moveDirection);
+        if (movement != 0 && lastMovement == -movement)
+        {
+            // Send direction out for raycast handler
+            UpdateSight(moveDirection);
         }
-        else if (!dashing)
-        { // Apply normal movement speed
-            body.Move(moveSpeed * Time.deltaTime * moveDirection);
+        if (movement != 0)
+        {
+            lastMovement = movement;
         }
 
+        // Collect input
         if (Input.GetKeyDown(KeyCode.Tab))
         { // Game Popup key
             Messenger.Broadcast(GameEvent.TOGGLE_GAME_POPUP);
@@ -89,12 +119,14 @@ public class PlayerMovement : MonoBehaviour
         if (canCancelJump && velocity.y < 0)
         { // Falling check
             canCancelJump = false;
+            isWallJumping = false;
         }
 
         if (!grounded && canCancelJump && (Input.GetKeyUp(KeyCode.X) || Input.GetKeyUp(KeyCode.JoystickButton0)))
         { // Jump cancel
             velocity.y *= 1f / jumpCancelForce;
             canCancelJump = false;
+            // isWallJumping = false;
         }
 
         if (grounded && !dashing && !dashJumping)
@@ -115,7 +147,39 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        // Dash movement
+        if (isWallAttached && (Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.JoystickButton0)))
+        { // Walljump initialize
+            isWallJumping = true;
+            wallJumpDirection = movement > 0 ? Vector3.left : Vector3.right;
+            wallJumpTime = Time.time + wallJumpCooldown;
+
+            velocity.y = Mathf.Sqrt(2 * (jumpStrength * 0.67f) * gravity);
+
+            isWallAttached = false;
+            ReturnIsTouchingWall(isWallAttached);
+        }
+
+        // Apply movement
+        if (dashJumping)
+        { // Move at dash speed
+            body.Move(dashSpeed * Time.deltaTime * moveDirection);
+        }
+        else if (isWallJumping && Time.time <= wallJumpTime)
+        { // Lerp from moveSpeed to zero
+            float wallJumpProgress = 1f - ((wallJumpTime - Time.time) / wallJumpCooldown);
+            float currentSpeed = Mathf.Lerp(moveSpeed, 2f, wallJumpProgress);
+            body.Move(currentSpeed * Time.deltaTime * wallJumpDirection);
+        }
+        else if (isWallJumping)
+        { // Move at boosted speed
+            body.Move((moveSpeed + 5f) * Time.deltaTime * moveDirection);
+        }
+        else if (!dashing)
+        { // Apply normal movement speed
+            body.Move(moveSpeed * Time.deltaTime * moveDirection);
+        }
+
+        // Determine gravitational influence
         if (dashing)
         {
             // Allow changing directions while dashing
@@ -141,9 +205,13 @@ public class PlayerMovement : MonoBehaviour
                 canCancelJump = true;
             }
         }
+        else if (isWallAttached)
+        {
+            velocity.y = -wallSlideSpeed;
+        }
         else
         {
-            // Apply gravity
+            // Apply gravity if not dashing or attached to wall
             if (moveable)
             {
                 if (!grounded)
@@ -169,7 +237,17 @@ public class PlayerMovement : MonoBehaviour
         // Animator parameters
         animator.SetFloat("speed", Mathf.Abs(movement)); // Use abs so it works in both directions
         animator.SetBool("jumping", !grounded && velocity.y > 0);
+    }
 
+    private void UpdateSight(Vector3 directionUpdate)
+    {
+        sight.UpdateDirection(directionUpdate);
+    }
+
+    private void ReturnIsTouchingWall(bool update)
+    {
+        // Debug.Log("Detached from wall.");
+        sight.SetIsTouchingWall(update);
     }
 
     public void FreezeAnimatorBody()
@@ -177,6 +255,25 @@ public class PlayerMovement : MonoBehaviour
         animator.SetBool("jumping", false);
         animator.SetFloat("speed", 0);
         dashSparks.Stop();
+    }
+
+    public void SetIsTouchingWall(bool update)
+    {
+        // Debug.Log("recv'd wall detect.");
+        if (update && movement != 0 && !body.isGrounded && velocity.y < 0)
+        {
+            if (dashJumping)
+            {
+                dashJumping = false;
+            }
+            // Debug.Log("Attached to wall");
+            isWallAttached = update;
+        }
+        else
+        { // Continue checking
+            isWallAttached = false;
+            sight.SetIsTouchingWall(isWallAttached);
+        }
     }
 
     void LateUpdate()

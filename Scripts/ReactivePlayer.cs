@@ -79,6 +79,13 @@ public class ReactivePlayer : MonoBehaviour
 
             StartCoroutine(HealthDepleted());
         }
+
+        // TEMPORARY: For wall-jump escapees while this project is still in demo stage
+        if (isAlive && transform.position.y < -1.0f)
+        {
+            health = 0;
+            Messenger<float>.Broadcast("PLAYER_HEALTH_UPDATE", health);
+        }
     }
 
     public void ReactToHit(float damage)
